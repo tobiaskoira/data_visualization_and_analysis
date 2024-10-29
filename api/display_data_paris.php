@@ -1,5 +1,5 @@
 <?php
-// Enable CORS to allow requests from localhost:3000
+// This Enable CORS to allow requests from localhost:3000
 header("Access-Control-Allow-Origin: http://localhost:3000"); // Allow requests from your React app's URL
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS"); // Allow HTTP methods
 header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allow headers
@@ -55,7 +55,7 @@ if ($result->num_rows > 0) {
         $markets[] = $market;
     }
 } else {
-    // No data was found
+
     echo "No data found in the 'markets' table.";
     exit;
 }

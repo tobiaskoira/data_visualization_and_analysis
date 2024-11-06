@@ -11,13 +11,16 @@ ini_set('display_errors', 1);
 include '../config/database.php';
 include 'getNatureOptions.php';    // Include function to fetch nature options
 include 'getMarketData.php'; 
-
+include 'getYears.php';
 
 
 // Initialize the response array
 $response = [
+    "dataCount" => getTotalCount($mysqli),
     "natureOptions" => getNatureOptions($mysqli),
-    "data" => getMarketData($mysqli)  
+    "years" => getYears($mysqli),
+    "data" => getMarketData($mysqli),  
+   
 ];
 
 

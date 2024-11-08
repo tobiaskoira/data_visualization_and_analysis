@@ -29,7 +29,6 @@ function Filters({
   toggleCheckboxGroup,
   clearFilters,
 }) {
-  // Handlers
   const handleCheckboxChange = (event, filterType) => {
     const { value, checked } = event.target;
     const updateFilter = (prev) =>
@@ -41,46 +40,67 @@ function Filters({
 
   const handleSliderChange = (event, newValue) => setMontantRange(newValue);
   const handleMarcheChange = (event, newValue) => setMarcheRange(newValue);
+const buttonFilter = {
+  whiteSpace: 'normal',
+  textAlign: 'center',
 
+ // overflow: 'hidden',
+ // textOverflow: 'ellipsis',
+ // fontSize: '0.875rem',
+ // padding: '8px 12px',
+};
   return (
     <Box>
-      {/* Clear Filters Button */}
-      <Box mb={3} display="flex" justifyContent="flex-end">
-        <Button variant="outlined" color="secondary" onClick={clearFilters}>
+      <Box mb={3} display="flex" justifyContent="flex-end"  >
+        <Button variant="outlined" color="secondary" onClick={clearFilters} sx={buttonFilter}>
           Clear Filters
         </Button>
       </Box>
 
-      {/* Filter Buttons */}
-      <Box display="flex" flexWrap="wrap" gap={1} marginBottom={3}>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(1)}>
-            Filter by Year
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(2)}>
-            Filter by Numéro Marché
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(3)}>
-            Filter by Fournisseur Nom
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(0)}>
+      <Box display="flex" flexWrap="wrap" gap={1} justifyContent="space-between" marginBottom={3} >
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(0)} sx={buttonFilter} >
             Filter by Nature du Marché
           </Button>
         </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(4)}>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(1)} sx={buttonFilter}>
+            Filter by Year
+          </Button>
+        </Box>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(2)} sx={buttonFilter}>
+            Filter by Numéro Marché
+          </Button>
+        </Box>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(3)} sx={buttonFilter}>
+            Filter by Fournisseur Nom
+          </Button>
+        </Box>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(4)} sx={buttonFilter}>
             Set Min/Max Montant
           </Button>
         </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(5)}>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(5)} sx={buttonFilter}>
             Filter by Date de début / de fin
+          </Button>
+        </Box>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(6)} sx={buttonFilter}>
+            Filter by Catégorie d'achat clé
+          </Button>
+        </Box>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(7)} sx={buttonFilter}>
+            Filter by Catégorie d'achat texte
+          </Button>
+        </Box>
+        <Box width="200px">
+          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(8)} sx={buttonFilter}>
+            Set Durée de Marché
           </Button>
         </Box>
       </Box>
@@ -155,9 +175,39 @@ function Filters({
           />
         </Box>
       )}
+
+      {openCheckboxGroups[6] && (
+        <Box mb={3}>
+          <TextField
+            label="Search by Catégorie d'achat clé"
+            variant="outlined"
+            fullWidth
+            value={categorie_d_achat_cle}
+            onChange={(e) => setCategorie_d_achat_cle(e.target.value)}
+          />
+        </Box>
+      )}
+
+      {openCheckboxGroups[7] && (
+        <Box mb={3}>
+          <TextField
+            label="Search by Catégorie d'achat texte"
+            variant="outlined"
+            fullWidth
+            value={categorie_d_achat_texte}
+            onChange={(e) => setCategorie_d_achat_texte(e.target.value)}
+          />
+        </Box>
+      )}
+
+      {openCheckboxGroups[8] && (
+        <Box mb={3}>
+          <Typography gutterBottom>Durée du marché</Typography>
+          <Slider value={marcheRange} onChange={handleMarcheChange} valueLabelDisplay="auto" min={0} max={10000} />
+        </Box>
+      )}
     </Box>
   );
 }
 
 export default Filters;
-

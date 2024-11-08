@@ -11,27 +11,22 @@ import {
   Typography,
   CircularProgress,
   Box,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Radio,
-  RadioGroup,
-  FormControl,
+  Grid,
   TablePagination,
-  TableSortLabel,
-  TextField,
-  Button,
-  Menu,
-  Slider,
- 
 } from '@mui/material';
+
+
 import Filters from './Filters';
 import './App.css';
-
+import {Charts, TopSuppliersChart} from './Charts';
 function App() {
   const [data, setData] = useState([]); // Full data set to display
   const [loading, setLoading] = useState(true);
   const [natureOptions, setNatureOptions] = useState([]); // Unique nature options
+  const [natureData, setNatureData] = useState([]);
+  const [fundingByCategoryData, setFundingByCaregoryData] = useState([]);
+  const [topSuppliersData, setTopSuppliersData] = useState([]);
+  const [contractPriceRange, setContractPriceRange] = useState([]);
   const [yearOptions, setYearOptions] = useState([]); // Unique year options
   const [selectedNatures, setSelectedNatures] = useState([]); // Selected nature options
   const [selectedYears, setSelectedYears] = useState([]); // Selected years
@@ -59,6 +54,9 @@ function App() {
     setEndDate("");
     fetchData(); // Optionally re-fetch data with cleared filters
   };
+
+
+
   // Function to fetch data from the server
   const fetchData = () => {
     const params = new URLSearchParams();
@@ -126,6 +124,7 @@ function formatDate(date) {
         setNatureOptions(responseData.natureOptions || []);
         setYearOptions(responseData.years || []);
         setData(responseData.data || []);
+
         setLoading(false);
       })
       .catch((error) => {
@@ -133,11 +132,29 @@ function formatDate(date) {
         setLoading(false);
       });
   };
+//funtions for analysis
+const fetchAggregatedData = () => {
+  const requestUrl = `http://localhost/paris_data_app/api/display_data_paris.php?aggregate=true`;
+
+  fetch(requestUrl)
+    .then((response) => response.json())
+    .then((aggregatedData) => {
+      setNatureData(aggregatedData.natureData); 
+      setFundingByCaregoryData(aggregatedData.fundingByCategoryData);
+      setTopSuppliersData(aggregatedData.topSuppliersData);
+      setContractPriceRange(aggregatedData.contractPricerange);
+    })
+    
+    .catch((error) => {
+      console.error('Error fetching aggregated data:', error);
+    });
+};
 
   // Fetch data when component mounts or selected filters change
   useEffect(() => {
     fetchData();
-  }, [selectedNatures, selectedYears, rowsPerPage, numeroMarche, fournisseurNom, montantRange, startDate, endDate, categorie_d_achat_cle, categorie_d_achat_texte, marcheRange]);
+    fetchAggregatedData();
+  }, [selectedNatures, selectedYears, page, rowsPerPage, numeroMarche, fournisseurNom, montantRange, startDate, endDate, categorie_d_achat_cle, categorie_d_achat_texte, marcheRange, ]);
 
   // Handle row limit change
  // const handleRowLimitChange = (event) => {
@@ -154,27 +171,11 @@ function formatDate(date) {
     setRowsPerPage(newRowsPerPage);
     setPage(0); // Reset to the first page when rows per page changes
   };
-  // Handle checkbox change for filters
-  const handleCheckboxChange = (event, filterType) => {
-    const { value, checked } = event.target;
-    const updateFilter = (prev) =>
-      checked ? [...prev, value] : prev.filter((val) => val !== value);
 
-    filterType === 'nature'
-      ? setSelectedNatures(updateFilter)
-      : setSelectedYears(updateFilter);
-  };
   const toggleCheckboxGroup = (index) => {
   setOpenCheckboxGroups((prev) =>
     prev.map((isOpen, i) => (i === index ? !isOpen : false))
   );
-  };
-  // Handle slider change
-  const handleSliderChange = (event, newValue) => {
-    setMontantRange(newValue);
-  };
-  const handleMarcheChange = (event, newValue) => {
-    setMarcheRange(newValue);
   };
 
 
@@ -186,220 +187,60 @@ function formatDate(date) {
       </Container>
     );
   }
-
+  console.log(contractPriceRange);
   return (
-    <Container maxWidth="lg" style={{ marginTop: '20px' }}>
+    <Container maxWidth="xl" style={{ marginTop: '20px' }}>
       <Typography variant="h4" component="h1" gutterBottom>
       Marchés publics - Liste des marchés de la collectivité parisienne
       </Typography>
-      {/* Clear Filters Button */}
-      <Box mb={3} display="flex" justifyContent="flex-end">
-        <Button variant="outlined" color="secondary" onClick={clearFilters}>
-          Clear Filters
-        </Button>
-      </Box>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={3}>
+           <Box
+            sx={{
+              borderRight: 1,
+              borderColor: 'divider',
+              padding: 2,
+              height: '100%',
+              overflowY: 'auto',
+            }}
+            >
+          <Filters
+            natureOptions={natureOptions}
+            yearOptions={yearOptions}
+            selectedNatures={selectedNatures}
+            setSelectedNatures={setSelectedNatures}
+            selectedYears={selectedYears}
+            setSelectedYears={setSelectedYears}
+            numeroMarche={numeroMarche}
+            setNumeroMarche={setNumeroMarche}
+            fournisseurNom={fournisseurNom}
+            setfournisseurNom={setfournisseurNom}
+            montantRange={montantRange}
+            setMontantRange={setMontantRange}
+            marcheRange={marcheRange}              
+            setMarcheRange={setMarcheRange}  
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            categorie_d_achat_cle={categorie_d_achat_cle}
+            setCategorie_d_achat_cle={setCategorie_d_achat_cle}
+            categorie_d_achat_texte={categorie_d_achat_texte}
+            setCategorie_d_achat_texte={setCategorie_d_achat_texte}
+            openCheckboxGroups={openCheckboxGroups}
+            toggleCheckboxGroup={toggleCheckboxGroup}
+            clearFilters={clearFilters}
+          />
+    </Box>
 
+   
 
- {/* Buttons with individual filter names in a 4x2 flexbox layout */}
-      <Box display="flex" flexWrap="wrap" gap={1} marginBottom={3}>
+    </Grid>
+<Grid item xs={12} md={9}>
 
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(1)}>
-            Filter by Year
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(2)}>
-            Filter by Numéro Marché
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(3)}>
-            Filter by Objet du Marché
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(0)}>
-            Filter by Nature du Marché
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(4)}>
-            Set min/max montant
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(5)}>
-            Filter by Date de début/ de fin
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(6)}>
-            Filter by Catégorie d'achat clé
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(7)}>
-            Filter by Catégorie d'achat texte
-          </Button>
-        </Box>
-        <Box width="24%">
-          <Button variant="outlined" fullWidth onClick={() => toggleCheckboxGroup(8)}>
-            Set by duree de marche
-          </Button>
-        </Box>    
-        </Box>    
-     
-
-
-      {/* Nature Filter Checkboxes */}
-      {openCheckboxGroups[0] && (      
-        <Box sx={{ width: '100%', maxWidth: '600px', mb: 2 }}>
-        <Typography variant="h6">Nature du Marché Options</Typography>
-        <FormGroup table>
-          {natureOptions.map((option) => (
-            <FormControlLabel
-              key={option}
-              control={
-                <Checkbox
-                  value={option}
-                  checked={selectedNatures.includes(option)}
-                  onChange={(e) => handleCheckboxChange(e, 'nature')}
-                />
-              }
-              label={option}
-            />
-          ))}
-        </FormGroup>
-      </Box>)}
-
-
-      {/* Year Filter Checkboxes */}
-      {openCheckboxGroups[1] && (      
-        <Box sx={{ width: '100%', maxWidth: '600px', mb: 2 }}>
-        <Typography variant="h6">Année de Notification Options</Typography>
-        <FormGroup row>
-          {yearOptions.map((year) => (
-            <FormControlLabel
-              key={year}
-              control={
-                <Checkbox
-                  value={year}
-                  checked={selectedYears.includes(year)}
-                  onChange={(e) => handleCheckboxChange(e, 'year')}
-                />
-              }
-              label={year}
-            />
-          ))}
-        </FormGroup>
-      </Box>)}
-{openCheckboxGroups[3] && (
-        
-      <Box mb={3}>
-        <TextField
-          label="Search by Fournisseur Nom"
-          variant="outlined"
-          fullWidth
-          value={fournisseurNom}
-          onChange={(e) => setfournisseurNom(e.target.value)}
-        />
-      </Box>
-
-)}
-
-{openCheckboxGroups[2] && (
-
-      <Box mb={3}>
-        <TextField
-          label="Search by Numéro Marché"
-          variant="outlined"
-          fullWidth
-          value={numeroMarche}
-          onChange={(e) => setNumeroMarche(e.target.value)}
-        />
-      </Box>
-)}
-
-{openCheckboxGroups[4] && (
-  <Box mb={3}>
-        <Typography gutterBottom>Montant Range (HT)</Typography>
-        <Slider
-          value={montantRange}
-          onChange={handleSliderChange}
-          valueLabelDisplay="auto"
-          min={0}
-          max={1000000}
-        />
-  </Box>
-)}
-
-{openCheckboxGroups[5] && (
-
-     <Box mb={3} display="flex" gap={2}>
-        <TextField
-          label="Date de début"
-          type="date"
-          InputLabelProps={{ shrink: true }}
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          fullWidth
-        />
-        <TextField
-          label="Date de fin"
-          type="date"
-          InputLabelProps={{ shrink: true }}
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          fullWidth
-        />
-      </Box>
-)}
-     
-{openCheckboxGroups[6] && (
-        
-      <Box mb={3}>
-        <TextField
-          label="Search by Catégorie d'achat clé"
-          variant="outlined"
-          fullWidth
-          value={categorie_d_achat_cle}
-          onChange={(e) => setCategorie_d_achat_cle(e.target.value)}
-        />
-      </Box>
-
-)}
-{openCheckboxGroups[7] && (
-        
-      <Box mb={3}>
-        <TextField
-          label="Search by Catégorie d'achat texte"
-          variant="outlined"
-          fullWidth
-          value={categorie_d_achat_texte}
-          onChange={(e) => setCategorie_d_achat_texte(e.target.value)}
-        />
-      </Box>
-
-)}
-
-{openCheckboxGroups[8] && (
-        
-        <Box mb={3}>
-        <Typography gutterBottom>Durée du marché</Typography>
-        <Slider
-          value={marcheRange}
-          onChange={handleMarcheChange}
-          valueLabelDisplay="auto"
-          min={0}
-          max={10000}
-        />
-  </Box>
-
-)}
-      {/* Data Table */}
+    {/* Data Table */}
       <TableContainer component={Paper} style={{ width: '100%', overflowX: 'auto', marginTop: '20px' }}>
-                {/* Pagination component container aligned to the right */}
+            
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px' }}>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25, 50, 100, ]}
@@ -457,6 +298,32 @@ function formatDate(date) {
           </TableBody>
         </Table>
       </TableContainer>
+<Charts 
+analysisData={natureData} 
+dataKey="count" 
+title="Contract Count by Category" />
+<Charts 
+analysisData={fundingByCategoryData} 
+dataKey="total_funding" 
+title="Funding by Category" />
+
+<TopSuppliersChart 
+analysisData={topSuppliersData}  
+dataKeyX = "total_funding" 
+dataKeyY = "total_funding" 
+title = "Top Suppliers by Total Funding" />
+
+
+<TopSuppliersChart 
+  analysisData={contractPriceRange}  
+  dataKeyY = "price_range" 
+  dataKeyX = "count_contracts" 
+  title = "Contract Count by Price Range" 
+/>
+</Grid>
+
+</Grid>
+  
     </Container>
   );
 }
